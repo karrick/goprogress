@@ -10,13 +10,11 @@ import (
 	"github.com/karrick/goprogress"
 )
 
-const waitKey = false
-
 func main() {
 	cols := flag.Int("columns", 80, "number of columns to use")
 	flag.Parse()
 
-	p, err := goprogress.NewPercentage(*cols)
+	s, err := goprogress.NewSpinner(*cols)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
@@ -24,15 +22,12 @@ func main() {
 
 	message := flag.Arg(flag.NArg() - 1)
 
-	for i := 0; i <= 101; i++ {
+	for i := 0; i <= 42; i++ {
 		s.Update(fmt.Sprintf("%s: %d", message, i))
 		s.WriteTo(os.Stdout)
-		if waitKey {
-			var r rune
-			fmt.Scanf("%c", &r)
-		} else {
-			time.Sleep(10 * time.Millisecond)
-		}
+		time.Sleep(10 * time.Millisecond)
 	}
-	fmt.Println()
+	s.Update(fmt.Sprintf("%s: complete", message))
+	s.WriteTo(os.Stdout)
+	fmt.Println() // newline after spinner
 }
