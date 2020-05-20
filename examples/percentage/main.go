@@ -10,8 +10,6 @@ import (
 	"github.com/karrick/goprogress"
 )
 
-const waitKey = false
-
 func main() {
 	cols := flag.Int("columns", 80, "number of columns to use")
 	flag.Parse()
@@ -27,12 +25,7 @@ func main() {
 	for i := 0; i <= 100; i++ {
 		p.Update(message, i)
 		p.WriteTo(os.Stdout)
-		if waitKey {
-			var r rune
-			fmt.Scanf("%c", &r)
-		} else {
-			time.Sleep(10 * time.Millisecond)
-		}
+		time.Sleep(10 * time.Millisecond)
 	}
-	fmt.Println()
+	fmt.Println() // newline after spinner
 }
