@@ -35,13 +35,13 @@ func main() {
 	options := &godirwalk.Options{
 		Callback: func(_ string, _ *godirwalk.Dirent) error {
 			totalDirents++
-			s.Update("Counting entries")
+			s.Update("Counting")
 			_, err := s.WriteTo(os.Stderr)
 			return err
 		},
 		ErrorCallback: func(osPathname string, err error) godirwalk.ErrorAction {
 			totalDirents++
-			s.Update(fmt.Sprintf("Counting entries: %s: %s", osPathname, err))
+			s.Update(fmt.Sprintf("Counting: %s: %s", osPathname, err))
 			s.WriteTo(os.Stderr)
 			return godirwalk.SkipNode
 		},
@@ -51,11 +51,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
 	}
-	s.Update("Counting entries: complete")
+	s.Update(fmt.Sprintf("Counting: there are %d entries", totalDirents))
 	s.WriteTo(os.Stderr)
 	fmt.Println() // newline after spinner progress bar
-
-	fmt.Printf("There are %d entries to process.\n", totalDirents)
 
 	//
 	// Now present a progress bar with the percentage complete.
@@ -69,13 +67,13 @@ func main() {
 	}
 
 	options.Callback = func(osPathname string, _ *godirwalk.Dirent) error {
-		complete += 100
+		complete += 100 // increment by 100 so do not need to multiple progress by 100
 		p.Update(fmt.Sprintf("Doing work: %s", osPathname), complete/totalDirents)
 		_, err := p.WriteTo(os.Stderr)
 		return err
 	}
 	options.ErrorCallback = func(osPathname string, err error) godirwalk.ErrorAction {
-		complete += 100
+		complete += 100 // increment by 100 so do not need to multiple progress by 100
 		p.Update(fmt.Sprintf("Doing work: %s: %s", osPathname, err), complete/totalDirents)
 		p.WriteTo(os.Stderr)
 		return godirwalk.SkipNode
