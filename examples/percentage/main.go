@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,16 +13,18 @@ import (
 const waitKey = false
 
 func main() {
-	message := os.Args[len(os.Args)-1]
-	cols := 80
+	cols := flag.Int("columns", 80, "number of columns to use")
+	flag.Parse()
 
-	p, err := goprogress.NewPercentage(cols)
+	p, err := goprogress.NewPercentage(*cols)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
 	}
 
-	for i := 0; i <= 101; i++ {
+	message := flag.Arg(flag.NArg() - 1)
+
+	for i := 0; i <= 100; i++ {
 		p.Update(message, i)
 		p.WriteTo(os.Stdout)
 		if waitKey {

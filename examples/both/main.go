@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,19 +14,22 @@ import (
 const debug = 1
 
 func main() {
-	message := os.Args[len(os.Args)-1]
-	cols := 80
+	cols := flag.Int("columns", 80, "number of columns to use")
+	flag.Parse()
 
-	p, err := goprogress.NewPercentage(cols)
+	p, err := goprogress.NewPercentage(*cols)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
 	}
-	s, err := goprogress.NewSpinner(cols)
+
+	s, err := goprogress.NewSpinner(*cols)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
 	}
+
+	message := flag.Arg(flag.NArg() - 1)
 
 	if debug > 0 {
 		fmt.Println(strings.Repeat("-", cols))
