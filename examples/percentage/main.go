@@ -22,10 +22,15 @@ func main() {
 
 	message := flag.Arg(flag.NArg() - 1)
 
-	for i := 0; i <= 100; i++ {
+	for i := 0; i <= 101; i++ {
 		p.Update(message, i)
 		p.WriteTo(os.Stdout)
-		time.Sleep(10 * time.Millisecond)
+		if true {
+			time.Sleep(100 * time.Millisecond)
+		} else {
+			var r rune
+			fmt.Scanf("%c", &r)
+		}
 	}
 	fmt.Println() // newline after spinner
 }

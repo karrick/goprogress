@@ -3,6 +3,8 @@ package goprogress
 import (
 	"fmt"
 	"io"
+	"os"
+	"strings"
 )
 
 const prefix = "\033[G\033[7m"
@@ -20,8 +22,8 @@ func NewPercentage(width int) (*Percentage, error) {
 		return nil, fmt.Errorf("cannot create width less than 1: %d", width)
 	}
 	return &Percentage{
-		formatted: make([]byte, lprefix+width+lsuffix),
-		width:     width,
+		// formatted: make([]byte, lprefix+width+lsuffix),
+		width: width,
 	}, nil
 }
 
@@ -45,15 +47,6 @@ loop:
 }
 
 func (p *Percentage) Update(message string, percentage int) {
-	if debug > 0 {
-		memfill(p.formatted, '?', cap(p.formatted))
-	}
-
-	// Start with escape sequences to return to first column and reverse video,
-	// and track the number of bytes copied for later on appending to the
-	// formatted byte slice.
-	idx := copy(p.formatted, prefix)
-
 	// Determine number of columns that should be displayed in reverse video.
 	reverseColumns := p.width * percentage / 100
 	if reverseColumns > p.width {
@@ -74,50 +67,75 @@ loop:
 	messageColumns := p.width - lpercent
 	var spaceColumns int
 
-	if sc := messageColumns - len(message); sc > 0 {
+	ms := NewString(message)
+	lms := ms.Len()
+
+	// fmt.Fprintf(os.Stderr, "\np.width: %d; percentage: %d; lpercent: %d; message columns: %d; space columns: %d\n", p.width, percentage, lpercent, messageColumns, messageColumns-lms)
+
+	if sc := messageColumns - lms; sc >= 0 {
 		spaceColumns = sc
 	} else {
-		message = message[:messageColumns] // message width exceeds number of columns allotted for it.
+		// Truncate message string to the number of characters allotted for it.
+		ms.Trunc(messageColumns)
+		lms = ms.Len()
 	}
 
-	// Determine at which index of the formatted string the percent sign will appear.
-	pstart := cap(p.formatted) - 1
+	// After potentially resizing message string and calculating number of
+	// columns allotted for spaces, calculate the size of the formatted byte
+	// slice.
+	if required := lprefix + len(ms.Bytes()) + lsuffix + spaceColumns + lpercent; cap(p.formatted) < required {
+		p.formatted = make([]byte, required) // grow
+	} else if cap(p.formatted) > required {
+		p.formatted = p.formatted[:required] // trim
+	}
+	if debug > 0 {
+		memfill(p.formatted, '?', cap(p.formatted))
+	}
 
-	mi := len(message) - reverseColumns
+	if debug > 0 {
+		fmt.Fprintf(os.Stderr, "%s\n", strings.Repeat("-", p.width))
+	}
+
+	// Start with escape sequences to return to first column and reverse video,
+	// and track the number of bytes copied for later on appending to the
+	// formatted byte slice.
+	idx := copy(p.formatted, prefix)
+
+	mi := lms - reverseColumns
 	if mi > 0 {
-		idx += copy(p.formatted[idx:], message[:reverseColumns])
+		idx += copy(p.formatted[idx:], ms.Slice(0, reverseColumns))
 		idx += copy(p.formatted[idx:], suffix)
-		idx += copy(p.formatted[idx:], message[reverseColumns:])
-		memfill(p.formatted[idx:], ' ', spaceColumns)
-		p.appendPercentage(percentage, 0, pstart)
-	} else if reverseColumns == len(message) {
-		idx += copy(p.formatted[idx:], message)
+		idx += copy(p.formatted[idx:], ms.Slice(reverseColumns, -1))
+		idx += memfill(p.formatted[idx:], ' ', spaceColumns)
+		p.appendPercentage(percentage, 0, idx+lpercent-1)
+	} else if reverseColumns == lms {
+		idx += copy(p.formatted[idx:], ms.Bytes())
 		idx += copy(p.formatted[idx:], suffix)
-		memfill(p.formatted[idx:], ' ', spaceColumns)
-		p.appendPercentage(percentage, 0, pstart)
+		idx += memfill(p.formatted[idx:], ' ', spaceColumns)
+		p.appendPercentage(percentage, 0, idx+lpercent-1)
 	} else if reverseColumns < messageColumns {
-		idx += copy(p.formatted[idx:], message)
+		idx += copy(p.formatted[idx:], ms.Bytes())
 		mi = -mi
 		idx += memfill(p.formatted[idx:], ' ', mi)
 		idx += copy(p.formatted[idx:], suffix)
-		memfill(p.formatted[idx:], ' ', spaceColumns-mi)
-		p.appendPercentage(percentage, 0, pstart)
+		idx += memfill(p.formatted[idx:], ' ', spaceColumns-mi)
+		p.appendPercentage(percentage, 0, idx+lpercent-1)
 	} else if reverseColumns == messageColumns {
-		idx += copy(p.formatted[idx:], message)
+		idx += copy(p.formatted[idx:], ms.Bytes())
 		idx += memfill(p.formatted[idx:], ' ', spaceColumns)
-		copy(p.formatted[idx:], suffix)
-		p.appendPercentage(percentage, 0, pstart)
+		idx += copy(p.formatted[idx:], suffix)
+		p.appendPercentage(percentage, 0, idx+lpercent-1)
 	} else if reverseColumns < (messageColumns + lpercent) {
-		idx += copy(p.formatted[idx:], message)
+		idx += copy(p.formatted[idx:], ms.Bytes())
 		idx += memfill(p.formatted[idx:], ' ', spaceColumns)
-		copy(p.formatted[idx:], suffix)
-		p.appendPercentage(percentage, lpercent+messageColumns-reverseColumns, pstart)
+		idx += copy(p.formatted[idx:], suffix)
+		p.appendPercentage(percentage, lpercent+messageColumns-reverseColumns, idx+lpercent-1)
 	} else {
-		idx += copy(p.formatted[idx:], message)
+		idx += copy(p.formatted[idx:], ms.Bytes())
 		idx += memfill(p.formatted[idx:], ' ', spaceColumns)
-		p.appendPercentage(percentage, 0, pstart-lsuffix)
+		p.appendPercentage(percentage, 0, idx+lpercent-1)
 		idx += lpercent
-		copy(p.formatted[idx:], suffix)
+		idx += copy(p.formatted[idx:], suffix)
 	}
 }
 

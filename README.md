@@ -96,11 +96,11 @@ corresponds to what a human sees when they look at the printed text. A
 human might see the latin letter e with an accent grave over it, for
 example.
 
-Characters are stored and transmitted using some encoding. In Unicode
+Characters are stored and transmitted using some encoding. In unicode
 those encodings are called code points. Because of how combining
-characters work in Unicode, some characters could have multiple code
+characters work in unicode, some characters could have multiple code
 point representations. For instance, the lower case letter e with an
-accent grave could be encoded as a single Unicode code point, or
+accent grave could be encoded as a single unicode code point, or
 alternatively encoded by two code points: the first one being the
 lower case latin letter e, the second as what is known as a combining
 code point, in this case the combining code point for accent
@@ -114,8 +114,17 @@ be addressed in this library.
 
 A code point is called a rune in Go parlance. A Go rune is stored as
 an int32 value. Remember a rune is not necessarily a single
-character. Some characters have multiple Unicode encodings, each of
+character. Some characters have multiple unicode encodings, each of
 which could be single or multiple code points.
+
+Another point--no pun intended--is there are look alike characters in
+unicode. Not just different code point sequences that represent the
+same character, but two different characters that happen to look
+alike. For instance, the latin capitol K looks identical to the
+unicode code point for the Kelvin symbol. This library need not worry
+itself with look alike characters. In order to function correctly,
+this library merely needs to know at one byte offset a particular
+character ends and the next character begins.
 
 ### Strings
 
@@ -156,7 +165,19 @@ Furthermore, when truncating long strings to fit in a narrow progress
 bar, it is important to truncate based on character width rather than
 truncating on bytes or even code points.
 
+One precaution to keep in mind is the unicode/utf-8 function
+DecodeRune will return an error when the rune is not the shortest
+possible UTF-8 encoding for the value. If this function is needed,
+then using a code point normalization library, such as one referenced
+below, may be required when accepting a string from a client, to
+normalize the UTF-8 string first, then allow normal enumeration over
+the string's code points.
+
+My first attempt will be in repeatedly using the norm.FirstBoundary
+function to find the next character in a string.
+
 ## References
 
 https://blog.golang.org/strings
 https://blog.golang.org/normalization
+https://pkg.go.dev/golang.org/x/text/transform?tab=doc
