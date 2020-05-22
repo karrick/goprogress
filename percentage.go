@@ -5,8 +5,11 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"github.com/karrick/goutfs"
 )
 
+const debugP = 0
 const prefix = "\033[G\033[7m"
 const suffix = "\033[27m"
 const lprefix = 7
@@ -21,10 +24,7 @@ func NewPercentage(width int) (*Percentage, error) {
 	if width < 1 {
 		return nil, fmt.Errorf("cannot create width less than 1: %d", width)
 	}
-	return &Percentage{
-		// formatted: make([]byte, lprefix+width+lsuffix),
-		width: width,
-	}, nil
+	return &Percentage{width: width}, nil
 }
 
 func (p *Percentage) appendPercentage(percentage, foo, start int) {
@@ -67,7 +67,7 @@ loop:
 	messageColumns := p.width - lpercent
 	var spaceColumns int
 
-	ms := NewString(message)
+	ms := goutfs.NewString(message)
 	lms := ms.Len()
 
 	// fmt.Fprintf(os.Stderr, "\np.width: %d; percentage: %d; lpercent: %d; message columns: %d; space columns: %d\n", p.width, percentage, lpercent, messageColumns, messageColumns-lms)
@@ -88,11 +88,8 @@ loop:
 	} else if cap(p.formatted) > required {
 		p.formatted = p.formatted[:required] // trim
 	}
-	if debug > 0 {
+	if debugP > 0 {
 		memfill(p.formatted, '?', cap(p.formatted))
-	}
-
-	if debug > 0 {
 		fmt.Fprintf(os.Stderr, "%s\n", strings.Repeat("-", p.width))
 	}
 

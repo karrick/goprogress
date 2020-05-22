@@ -35,7 +35,7 @@ func main() {
 	options := &godirwalk.Options{
 		Callback: func(_ string, _ *godirwalk.Dirent) error {
 			totalDirents++
-			s.Update("Counting")
+			s.Update(fmt.Sprintf("Counting: found %d entries so far...", totalDirents))
 			_, err := s.WriteTo(os.Stderr)
 			return err
 		},
@@ -51,7 +51,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 		os.Exit(1)
 	}
-	s.Update(fmt.Sprintf("Counting: there are %d entries", totalDirents))
+	s.Update(fmt.Sprintf("Counting: found %d entries", totalDirents))
 	s.WriteTo(os.Stderr)
 	fmt.Println() // newline after spinner progress bar
 

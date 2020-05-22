@@ -22,10 +22,15 @@ func main() {
 
 	message := flag.Arg(flag.NArg() - 1)
 
-	for i := 0; i <= 42; i++ {
-		s.Update(fmt.Sprintf("%s: %d", message, i))
+	for i := 0; i < 26; i++ {
+		s.Update(fmt.Sprintf("%s: %c", message, byte(i+'a')))
 		s.WriteTo(os.Stdout)
-		time.Sleep(10 * time.Millisecond)
+		if true {
+			time.Sleep(100 * time.Millisecond)
+		} else {
+			var r rune
+			fmt.Scanf("%c", &r)
+		}
 	}
 	s.Update(fmt.Sprintf("%s: complete", message))
 	s.WriteTo(os.Stdout)
