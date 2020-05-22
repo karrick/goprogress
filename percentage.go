@@ -21,8 +21,8 @@ type Percentage struct {
 }
 
 func NewPercentage(width int) (*Percentage, error) {
-	if width < 1 {
-		return nil, fmt.Errorf("cannot create width less than 1: %d", width)
+	if width < 4 {
+		return nil, fmt.Errorf("cannot create width less than 4: %d", width)
 	}
 	return &Percentage{width: width}, nil
 }

@@ -22,7 +22,7 @@ func main() {
 
 	message := flag.Arg(flag.NArg() - 1)
 
-	for i := 0; i <= 101; i++ {
+	for i := 0; i <= 100; i++ {
 		p.Update(message, i)
 		p.WriteTo(os.Stdout)
 		if true {

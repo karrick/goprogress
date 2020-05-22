@@ -1,5 +1,5 @@
-github.com/karrick/goutfs v0.0.1 h1:4wZn7ZMnNXFG4u+pEmK1X1prgqFeF6FAiKECzn1//1c=
-github.com/karrick/goutfs v0.0.1/go.mod h1:9bit6a3CrveGmyyMJxLJgdtZ+pmhFvFjWQVEpu1dJvI=
+github.com/karrick/goutfs v0.0.2 h1:+4F8LtCCVJDy+h4N9aCF50zXF+N4e0YG7Th1LE0S8ws=
+github.com/karrick/goutfs v0.0.2/go.mod h1:9bit6a3CrveGmyyMJxLJgdtZ+pmhFvFjWQVEpu1dJvI=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
