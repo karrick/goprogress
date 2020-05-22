@@ -12,6 +12,7 @@ import (
 
 func main() {
 	cols := flag.Int("columns", 80, "number of columns to use")
+	arrow := flag.Bool("arrows", false, "use arrows to control")
 	flag.Parse()
 
 	p, err := goprogress.NewPercentage(*cols)
@@ -22,15 +23,32 @@ func main() {
 
 	message := flag.Arg(flag.NArg() - 1)
 
-	for i := 0; i <= 100; i++ {
+	var i int
+
+	for {
 		p.Update(message, i)
 		p.WriteTo(os.Stdout)
-		if true {
-			time.Sleep(100 * time.Millisecond)
+		if *arrow {
+			b := make([]byte, 1)
+			if _, err = os.Stdin.Read(b); err != nil {
+				fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
+				os.Exit(1)
+			}
+			switch b[0] {
+			case 'h':
+				i--
+			case 'l':
+				i++
+			case 'q':
+				goto end
+			default:
+				fmt.Fprintf(os.Stderr, "b: %q\n", b)
+			}
 		} else {
-			var r rune
-			fmt.Scanf("%c", &r)
+			time.Sleep(100 * time.Millisecond)
+			i++
 		}
 	}
+end:
 	fmt.Println() // newline after spinner
 }
