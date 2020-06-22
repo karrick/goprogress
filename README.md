@@ -1,10 +1,15 @@
 # goprogress
 
-command line progress bar for Go programs using ANSI escape
+Progress bar for command-line Go programs using ANSI escape
 sequences. Respects UTF-8 character boundries for characters that are
 encoded with multiple unicode code points.
 
 # Use
+
+Documentation is available via
+[![GoDoc](https://godoc.org/github.com/karrick/goprogress?status.svg)](https://godoc.org/github.com/karrick/goprogress)
+and
+[https://pkg.go.dev/github.com/karrick/goprogress?tab=doc](https://pkg.go.dev/github.com/karrick/goprogress?tab=doc).
 
 ## Percentage
 
