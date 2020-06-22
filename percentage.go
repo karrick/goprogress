@@ -20,6 +20,28 @@ type Percentage struct {
 	width     int    // width is the number of columns the progress bar should consume.
 }
 
+// NewPercentage returns a progress bar with specified width that will include
+// an indication of the percentage complete every time it is updated.
+//
+//     func main() {
+//         cols := flag.Int("columns", 80, "number of columns to use")
+//         flag.Parse()
+//
+//         p, err := goprogress.NewPercentage(*cols)
+//         if err != nil {
+//             fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
+//             os.Exit(1)
+//         }
+//
+//         message := flag.Arg(flag.NArg() - 1)
+//
+//         for i := 0; i <= 100; i++ {
+//             p.Update(message, i)
+//             p.WriteTo(os.Stdout)
+//             time.Sleep(10 * time.Millisecond)
+//         }
+//         fmt.Println() // newline after spinner
+//     }
 func NewPercentage(width int) (*Percentage, error) {
 	if width < 4 {
 		return nil, fmt.Errorf("cannot create width less than 4: %d", width)
@@ -46,6 +68,8 @@ loop:
 	}
 }
 
+// Update will update the Percentage progress bar with the provided message and
+// update the percentage complete.
 func (p *Percentage) Update(message string, percentage int) {
 	// Determine number of columns that should be displayed in reverse video.
 	reverseColumns := p.width * percentage / 100
@@ -136,6 +160,8 @@ loop:
 	}
 }
 
+// WriteTo will send the sequence of ANSI characters required to redraw the
+// Percentage progress bar to the specified io.Writer.
 func (p *Percentage) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(p.formatted)
 	return int64(n), err

@@ -21,6 +21,30 @@ type Spinner struct {
 	width     int    // width is the number of columns the progress bar should consume.
 }
 
+// NewSpinner returns a progress bar with specified width, to be used when the
+// percentage complete is not known for every update.
+//
+//     func main() {
+//         cols := flag.Int("columns", 80, "number of columns to use")
+//         flag.Parse()
+//
+//         s, err := goprogress.NewSpinner(*cols)
+//         if err != nil {
+//             fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
+//             os.Exit(1)
+//         }
+//
+//         message := flag.Arg(flag.NArg() - 1)
+//
+//         for i := 0; i <= 42; i++ {
+//             s.Update(fmt.Sprintf("%s: %d", message, i))
+//             s.WriteTo(os.Stdout)
+//             time.Sleep(10 * time.Millisecond)
+//         }
+//         s.Update(fmt.Sprintf("%s: complete", message))
+//         s.WriteTo(os.Stdout)
+//         fmt.Println() // newline after spinner
+//     }
 func NewSpinner(width int) (*Spinner, error) {
 	if width < 1 {
 		return nil, fmt.Errorf("cannot create width less than 1: %d", width)
@@ -28,6 +52,8 @@ func NewSpinner(width int) (*Spinner, error) {
 	return &Spinner{width: width}, nil
 }
 
+// Update will update the Spinner progress bar with the provided message and
+// update the spinner character.
 func (p *Spinner) Update(message string) {
 	// Determine number of columns dedicated for the message and for empty
 	// spaces before the spinner.
@@ -74,6 +100,8 @@ func (p *Spinner) Update(message string) {
 	}
 }
 
+// WriteTo will send the sequence of ANSI characters required to redraw the
+// Spinner progress bar to the specified io.Writer.
 func (p *Spinner) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(p.formatted)
 	return int64(n), err
