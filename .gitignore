@@ -4,6 +4,8 @@
 *.dll
 *.so
 *.dylib
+examples/percentage/percentage
+examples/spinner/spinner
 
 # Test binary, built with `go test -c`
 *.test
